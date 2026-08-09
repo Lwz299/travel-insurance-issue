@@ -1,0 +1,264 @@
+@baseUrl = http://localhost:5066
+@password = Test@123456
+
+### ─────────────────────────────────────────
+### 1) Login — Super Admin (full access)
+### ─────────────────────────────────────────
+# @name loginSuperAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "superadmin@altadamun-ins.test",
+  "password": "{{password}}",
+  "device": "api-test"
+}
+
+###
+@superAdminToken = {{loginSuperAdmin.response.body.accessToken}}
+
+### ─────────────────────────────────────────
+### 2) Login — Insurance Admin (company + plans)
+### ─────────────────────────────────────────
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@altadamun-ins.test",
+  "password": "{{password}}",
+  "device": "api-test"
+}
+
+###
+@adminToken = {{loginAdmin.response.body.accessToken}}
+
+### ─────────────────────────────────────────
+### 3) Login — Agency User
+### ─────────────────────────────────────────
+# @name loginAgency
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "agency@altadamun-ins.test",
+  "password": "{{password}}",
+  "device": "api-test"
+}
+
+###
+@agencyToken = {{loginAgency.response.body.accessToken}}
+
+### ─────────────────────────────────────────
+### 4) Login — Customer
+### ─────────────────────────────────────────
+# @name loginCustomer
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "customer@altadamun-ins.test",
+  "password": "{{password}}",
+  "device": "api-test"
+}
+
+###
+@customerToken = {{loginCustomer.response.body.accessToken}}
+
+### ─────────────────────────────────────────
+### Auth — active sessions
+### ─────────────────────────────────────────
+GET {{baseUrl}}/auth/sessions
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Companies — list all
+### ─────────────────────────────────────────
+GET {{baseUrl}}/companies
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Companies — insurance company by ID
+### Insurance Company ID: a1000000-0000-0000-0000-000000000001
+### ─────────────────────────────────────────
+GET {{baseUrl}}/companies/a1000000-0000-0000-0000-000000000001
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Users — list all
+### ─────────────────────────────────────────
+GET {{baseUrl}}/users
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Users — roles list
+### ─────────────────────────────────────────
+GET {{baseUrl}}/users/roles
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Countries — list (for plan configuration)
+### ─────────────────────────────────────────
+GET {{baseUrl}}/countries
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Plans — list all
+### ─────────────────────────────────────────
+GET {{baseUrl}}/plans
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Plans — sample plan by ID
+### Plan ID: d1000000-0000-0000-0000-000000000001
+### ─────────────────────────────────────────
+GET {{baseUrl}}/plans/d1000000-0000-0000-0000-000000000001
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Plans — create new plan
+### ─────────────────────────────────────────
+POST {{baseUrl}}/plans
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "companyId": "a1000000-0000-0000-0000-000000000001",
+  "name": "Europe Basic Plan",
+  "description": "Budget travel insurance for Europe",
+  "coverageType": "SingleTrip",
+  "defaultDurationDays": 14,
+  "minAge": 18,
+  "maxAge": 65,
+  "maxTripDurationDays": 30,
+  "countries": [
+    {
+      "countryId": "c0000000-0000-0000-0000-000000000008",
+      "isExcluded": false
+    }
+  ],
+  "pricingRules": [
+    {
+      "minAge": 18,
+      "maxAge": 65,
+      "durationFrom": 1,
+      "durationTo": 14,
+      "price": 20,
+      "currency": "USD"
+    }
+  ]
+}
+
+### ─────────────────────────────────────────
+### Plans — deactivate plan
+### ─────────────────────────────────────────
+PATCH {{baseUrl}}/plans/d1000000-0000-0000-0000-000000000001/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+### ─────────────────────────────────────────
+### Plans — reactivate plan
+### ─────────────────────────────────────────
+PATCH {{baseUrl}}/plans/d1000000-0000-0000-0000-000000000001/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "isActive": true
+}
+
+### ─────────────────────────────────────────
+### Negative test — customer cannot manage plans (403)
+### ─────────────────────────────────────────
+GET {{baseUrl}}/plans
+Authorization: Bearer {{customerToken}}
+
+### ─────────────────────────────────────────
+### Negative test — agency cannot manage companies (403)
+### ─────────────────────────────────────────
+GET {{baseUrl}}/companies
+Authorization: Bearer {{agencyToken}}
+
+### ─────────────────────────────────────────
+### Catalog — lookups (benefit types, limit types, risk types)
+### ─────────────────────────────────────────
+GET {{baseUrl}}/catalog/lookups/benefit-types
+Authorization: Bearer {{superAdminToken}}
+
+###
+GET {{baseUrl}}/catalog/lookups/limit-types
+Authorization: Bearer {{superAdminToken}}
+
+###
+GET {{baseUrl}}/catalog/lookups/risk-types
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Catalog — coverage groups
+### Medical Group ID: e1000000-0000-0000-0000-000000000001
+### ─────────────────────────────────────────
+GET {{baseUrl}}/catalog/groups
+Authorization: Bearer {{superAdminToken}}
+
+###
+GET {{baseUrl}}/catalog/groups/e1000000-0000-0000-0000-000000000001
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Catalog — coverages
+### Medical & Hospital Coverage ID: e2000000-0000-0000-0000-000000000001
+### ─────────────────────────────────────────
+GET {{baseUrl}}/catalog/coverages
+Authorization: Bearer {{superAdminToken}}
+
+###
+GET {{baseUrl}}/catalog/coverages/e2000000-0000-0000-0000-000000000001
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Catalog — benefits
+### Emergency Medical Benefit ID: e3000000-0000-0000-0000-000000000001
+### ─────────────────────────────────────────
+GET {{baseUrl}}/catalog/benefits
+Authorization: Bearer {{superAdminToken}}
+
+###
+GET {{baseUrl}}/catalog/coverages/e2000000-0000-0000-0000-000000000001/benefits
+Authorization: Bearer {{superAdminToken}}
+
+### ─────────────────────────────────────────
+### Plans — coverage assignments for sample plan
+### ─────────────────────────────────────────
+GET {{baseUrl}}/plans/d1000000-0000-0000-0000-000000000001/coverages
+Authorization: Bearer {{adminToken}}
+
+### ─────────────────────────────────────────
+### Plans — assign catalog coverage to plan
+### ─────────────────────────────────────────
+POST {{baseUrl}}/plans/d1000000-0000-0000-0000-000000000001/coverages
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "coverageId": "e2000000-0000-0000-0000-000000000003",
+  "customLimit": 5000,
+  "currency": "USD",
+  "displayOrder": 5
+}
+
+### ─────────────────────────────────────────
+### Negative test — admin cannot manage catalog (403)
+### ─────────────────────────────────────────
+POST {{baseUrl}}/catalog/groups
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "code": "TEST",
+  "name": "Test Group",
+  "sortOrder": 99
+}

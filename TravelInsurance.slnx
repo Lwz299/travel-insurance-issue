@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TravelInsurance.Api/TravelInsurance.Api.csproj" />
+    <Project Path="src/TravelInsurance.Application/TravelInsurance.Application.csproj" />
+    <Project Path="src/TravelInsurance.Domain/TravelInsurance.Domain.csproj" />
+    <Project Path="src/TravelInsurance.Infrastructure/TravelInsurance.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TravelInsurance.IntegrationTests/TravelInsurance.IntegrationTests.csproj" />
+    <Project Path="tests/TravelInsurance.UnitTests/TravelInsurance.UnitTests.csproj" />
+  </Folder>
+</Solution>

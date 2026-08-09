@@ -1,0 +1,39 @@
+@TravelInsurance.Api_HostAddress = https://localhost:7286
+
+### Register
+POST {{TravelInsurance.Api_HostAddress}}/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "password": "Passw0rd!",
+  "phone": "+9647700000000"
+}
+
+### Verify Email
+POST {{TravelInsurance.Api_HostAddress}}/auth/verify-email
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "otp": "123456"
+}
+
+### Login
+POST {{TravelInsurance.Api_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "Passw0rd!",
+  "device": "web"
+}
+
+### Refresh Token
+POST {{TravelInsurance.Api_HostAddress}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "PASTE_REFRESH_TOKEN_HERE"
+}
